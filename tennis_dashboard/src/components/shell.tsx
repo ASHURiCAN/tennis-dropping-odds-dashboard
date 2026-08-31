@@ -1,5 +1,5 @@
 import { NavLink } from "react-router-dom";
-import { Compass, Layers, TrendingUp, SlidersHorizontal, Table2, Grid3x3, FlaskConical } from "lucide-react";
+import { Compass, Layers, TrendingUp, SlidersHorizontal, Table2, Grid3x3 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const NAV = [
@@ -12,7 +12,6 @@ const NAV = [
 const NAV_ANALYSIS = [
   { to: "/signals", label: "Signaux explorer", icon: Table2 },
   { to: "/heatmap", label: "Heatmap", icon: Grid3x3 },
-  { to: "/lab", label: "Lab", icon: FlaskConical },
 ];
 
 export function Sidebar() {

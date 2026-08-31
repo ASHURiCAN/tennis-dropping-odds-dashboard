@@ -78,7 +78,7 @@ def build_cohort(label: str, fname: str, kind: str) -> dict:
             signals.append(sig)
     # sort by date then id for a stable equity path
     sig_by_date = sorted(
-        ((r.get("date", ""), r.get("id", ""), sig) for r in d.get("records", []) for sig in (r.get("signals") or [])),
+        ((r.get("date", ""), r.get("id", ""), r.get("winner_side"), sig) for r in d.get("records", []) for sig in (r.get("signals") or [])),
         key=lambda x: (x[0], x[1]),
     )
     pnls = []
@@ -87,29 +87,35 @@ def build_cohort(label: str, fname: str, kind: str) -> dict:
     wins = 0
     losses = 0
     detail = []
-    for i, (_date, _id, sig) in enumerate(sig_by_date, 1):
-        roi = sig.get("roi_unit")
-        if roi is None:
+    for i, (_date, _id, winner_side, sig) in enumerate(sig_by_date, 1):
+        # Reconstruct an honest outcome/roi from the reliable winner_side + the bet side + closing odds.
+        # The source JSON's outcome/roi_unit are biased (always computed as if betting the underdog),
+        # so we derive them here from first principles.
+        side = sig.get("side")
+        closing = sig.get("closing_odds")
+        if side is None or closing is None:
             continue
-        outcome = sig.get("outcome")
-        if outcome == "win":
+        bet_won = winner_side == side
+        outcome = "win" if bet_won else "loss"
+        roi = (closing - 1.0) if bet_won else -1.0
+        if bet_won:
             wins += 1
             pnls.append(roi)
             running += roi
-        elif outcome == "loss":
+        else:
             losses += 1
-            pnls.append(roi)  # already negative in source
+            pnls.append(roi)
             running += roi
         equity.append({"i": i, "pnl": round(running, 3), "date": _date, "event": sig.get("player", "")})
         detail.append({
             "player": sig.get("player"),
-            "side": sig.get("side"),
-            "closing_odds": sig.get("closing_odds"),
+            "side": side,
+            "closing_odds": closing,
             "drop_pct_median": sig.get("drop_pct_median"),
             "bookmaker_support": sig.get("bookmaker_support"),
             "top_bookmaker": sig.get("top_bookmaker"),
             "outcome": outcome,
-            "roi_unit": roi,
+            "roi_unit": round(roi, 3),
         })
 
     n = len(pnls)

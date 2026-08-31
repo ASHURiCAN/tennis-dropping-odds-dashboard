@@ -3,8 +3,24 @@
 Visualisation (React + Tailwind + Recharts) d'un backtest tennis **walk-forward strict**
 sur le signal *underdog en drop consensuel → on parie la favorite* (cote réelle du favori).
 
-> UI = visualisation seule. Aucune optimisation n'est faite ici ; le signal est figé
-> (été 2026) et appliqué tel-quel en out-of-sample.
+> **Visualisation seule. Aucune optimisation n'est faite ici.**
+> Le signal est figé (été 2026) et appliqué tel-quel en out-of-sample.
+
+## ⚠️ Limite de données (important)
+
+Les JSON source `tennisexplorer_*` portent une colonne `winner_side` / `score` /
+`outcome` **biaisée** : `winner_side` vaut toujours `p1` (le score affiché est un
+placeholder du parser, ou le scrape ne capture pas le vrai résultat). Conséquence :
+
+- `outcome` et `roi_unit` par signal sont **non fiables** pour distinguer favori vs underdog.
+- Les equity curves et IC95 agrégés (par cohorte) restent valides car ils utilisent le
+  ROI reconstitué à la cote du favori (formule du HANDOFF), mais **le win% par côté est douteux**.
+- **Aucun Lab modifiable** n'est exposé : recalculer l'equity sur des issues biaisées
+  produirait une fausse interactivité. La page Lab a été volontairement retirée.
+
+Pour rendre le Lab honnête, il faut corriger la collecte (`historical_backtest.py` :
+parse du `td.gScore` sur tennisexplorer.com) et re-scraper les résultats réels — travail
+de collecte séparé, non inclus ici.
 
 ## Données
 
@@ -49,6 +65,8 @@ Ouvrir `tennis_dashboard_bundle.html` directement dans un navigateur Android fon
 - **Découverte** — cohorte in-sample, equity, contexte du signal.
 - **OOS par cohorte** — 12 fenêtres cliquables → equity + tableau des signaux détaillés.
 - **Favori-ROI** — agrégé par cohorte avec IC95 + heatmap.
+- **Signaux explorer** — tous les paris OOS, triables/filtrables (bookmaker, drop%, issue). *Note : le tri par issue est indicatif car l'issue source est biaisée (voir limite ci-dessus).*
+- **Heatmap** — ROI% par bookmaker et par fenêtre OOS.
 - **Paramètres figés** — signal validé (lecture seule).
 
 ## Régénérer les données
