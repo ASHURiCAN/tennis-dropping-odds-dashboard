@@ -4,6 +4,9 @@ import { DiscoveryPage } from "@/pages/DiscoveryPage";
 import { OosPage } from "@/pages/OosPage";
 import { FavoriteRoiPage } from "@/pages/FavoriteRoiPage";
 import { ParamsPage } from "@/pages/ParamsPage";
+import { SignalsExplorerPage } from "@/pages/SignalsExplorerPage";
+import { HeatmapPage } from "@/pages/HeatmapPage";
+import { LabPage } from "@/pages/LabPage";
 import { useReport } from "@/lib/useReport";
 
 function Shell({ children, title, subtitle }: { children: React.ReactNode; title: string; subtitle?: string }) {
@@ -47,6 +50,30 @@ function Routed() {
         element={
           <Shell title="Favori-ROI" subtitle="Performance par cohorte avec IC95">
             <FavoriteRoiPage />
+          </Shell>
+        }
+      />
+      <Route
+        path="/signals"
+        element={
+          <Shell title="Signaux explorer" subtitle="Tous les paris OOS — triables et filtrables">
+            <SignalsExplorerPage />
+          </Shell>
+        }
+      />
+      <Route
+        path="/heatmap"
+        element={
+          <Shell title="Heatmap" subtitle="ROI% par bookmaker et par fenêtre OOS">
+            <HeatmapPage />
+          </Shell>
+        }
+      />
+      <Route
+        path="/lab"
+        element={
+          <Shell title="Lab" subtitle="Sensibilité aux paramètres figés (re-filtrage, pas ré-optimisation)">
+            <LabPage />
           </Shell>
         }
       />
